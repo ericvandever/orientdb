@@ -21,6 +21,8 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.io.OIOUtils;
+import com.orientechnologies.common.serialization.types.OBigIntegerSerializer;
+import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
@@ -31,6 +33,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -60,6 +63,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
     case BINARY:
     case LINK:
     case DECIMAL:
+    case BIGINTEGER:
       return true;
     default:
       return false;
@@ -125,6 +129,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.intValue();
         }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.intValue();
+        }
         }
         break;
       }
@@ -169,6 +177,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.longValue();
         }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.longValue();
+        }
         }
         break;
       }
@@ -211,6 +223,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.shortValue();
+        }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.shortValue();
         }
         }
@@ -278,6 +294,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return new BigDecimal(ORecordSerializerBinaryV0.readString(fieldValue1)).equals(value2);
         }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return new BigInteger(ORecordSerializerBinaryV0.readString(fieldValue1)).equals(value2);
+        }
         case BOOLEAN: {
           final boolean value2 = ORecordSerializerBinaryV0.readByte(fieldValue2) == 1;
           return Boolean.parseBoolean(ORecordSerializerBinaryV0.readString(fieldValue1)) == value2;
@@ -329,6 +349,11 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.doubleValue();
         }
+        case BIGINTEGER: {
+          final double value1 = Double.longBitsToDouble(value1AsLong);
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.doubleValue();
+        }
         }
         break;
       }
@@ -376,6 +401,11 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.floatValue();
         }
+        case BIGINTEGER: {
+          final float value1 = Float.intBitsToFloat(value1AsInt);
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.floatValue();
+        }
         }
         break;
       }
@@ -415,6 +445,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.byteValue();
+        }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.byteValue();
         }
         }
@@ -471,6 +505,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.longValue();
+        }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.longValue();
         }
         }
@@ -537,6 +575,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1 == value2.longValue();
+        }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1 == value2.longValue();
         }
         }
@@ -614,9 +656,53 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1.equals(value2);
         }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1.equals(new BigDecimal(value2));
+        }
         }
         break;
       }
+
+      case BIGINTEGER: {
+        final BigInteger value1 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue1.bytes, fieldValue1.offset);
+
+        switch (iField2.type) {
+          case INTEGER: {
+            final int value2 = OVarIntSerializer.readAsInteger(fieldValue2);
+            return value1.equals(BigInteger.valueOf(value2));
+          }
+          case LONG:
+          case DATETIME: {
+            final long value2 = OVarIntSerializer.readAsLong(fieldValue2);
+            return value1.equals(BigInteger.valueOf(value2));
+          }
+          case SHORT: {
+            final short value2 = OVarIntSerializer.readAsShort(fieldValue2);
+            return value1.equals(BigInteger.valueOf(value2));
+          }
+          case FLOAT: {
+            final float value2 = Float.intBitsToFloat(ORecordSerializerBinaryV0.readInteger(fieldValue2));
+            return value1.equals(new BigDecimal(value2).toBigInteger());
+          }
+          case DOUBLE: {
+            final double value2 = Double.longBitsToDouble(ORecordSerializerBinaryV0.readLong(fieldValue2));
+            return value1.equals(new BigDecimal(value2).toBigInteger());
+          }
+          case STRING: {
+            return value1.toString().equals(ORecordSerializerBinaryV0.readString(fieldValue2));
+          }
+          case DECIMAL: {
+            final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+            return value1.equals(value2.toBigInteger());
+          }
+          case BIGINTEGER: {
+            final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+            return value1.equals(value2);
+          }
+        }
+        break;
+        }
       }
     } finally {
       fieldValue1.offset = offset1;
@@ -686,6 +772,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final int value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).intValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
+        case BIGINTEGER: {
+          final int value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).intValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
         }
         break;
       }
@@ -731,6 +821,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final long value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).longValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
+        case BIGINTEGER: {
+          final long value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).longValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
         }
         break;
       }
@@ -774,6 +868,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final short value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).shortValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
+        case BIGINTEGER: {
+          final long value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).shortValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
         }
@@ -835,6 +933,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return new BigDecimal(value1).compareTo(value2);
         }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return new BigInteger(value1).compareTo(value2);
+        }
         }
         break;
       }
@@ -874,6 +976,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final double value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).doubleValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
+        case BIGINTEGER: {
+          final double value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).doubleValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
         }
@@ -917,6 +1023,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final String value2 = ORecordSerializerBinaryV0.readString(fieldValue2);
           return Float.toString(value1).compareTo(value2);
         }
+        case BIGINTEGER: {
+          final float value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).floatValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
         }
         break;
       }
@@ -956,6 +1066,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final byte value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).byteValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
+        case BIGINTEGER: {
+          final byte value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).byteValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
         }
@@ -1044,6 +1158,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final long value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).longValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
+        case BIGINTEGER: {
+          final long value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).longValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
         }
         break;
       }
@@ -1107,6 +1225,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         case DECIMAL: {
           final long value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).longValue();
+          return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+        }
+        case BIGINTEGER: {
+          final long value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).longValue();
           return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
         }
         }
@@ -1203,6 +1325,10 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
           final BigDecimal value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
           return value1.compareTo(value2);
         }
+        case BIGINTEGER: {
+          final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+          return value1.compareTo(new BigDecimal(value2));
+        }
         case BYTE: {
           final byte value2 = ORecordSerializerBinaryV0.readByte(fieldValue2);
           return value1.compareTo(new BigDecimal(value2));
@@ -1210,6 +1336,51 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
         }
         break;
       }
+
+      case BIGINTEGER: {
+        final BigInteger value1 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue1.bytes, fieldValue1.offset);
+
+        switch (iField2.type) {
+          case INTEGER: {
+            final int value2 = OVarIntSerializer.readAsInteger(fieldValue2);
+            return value1.compareTo(BigInteger.valueOf(value2));
+          }
+          case LONG:
+          case DATETIME: {
+            final long value2 = OVarIntSerializer.readAsLong(fieldValue2);
+            return value1.compareTo(BigInteger.valueOf(value2));
+          }
+          case SHORT: {
+            final short value2 = OVarIntSerializer.readAsShort(fieldValue2);
+            return value1.compareTo(BigInteger.valueOf(value2));
+          }
+          case FLOAT: {
+            final float value2 = Float.intBitsToFloat(ORecordSerializerBinaryV0.readInteger(fieldValue2));
+            return value1.compareTo(new BigDecimal(value2).toBigInteger());
+          }
+          case DOUBLE: {
+            final double value2 = Double.longBitsToDouble(ORecordSerializerBinaryV0.readLong(fieldValue2));
+            return value1.compareTo(new BigDecimal(value2).toBigInteger());
+          }
+          case STRING: {
+            final String value2 = ORecordSerializerBinaryV0.readString(fieldValue2);
+            return value1.toString().compareTo(value2);
+          }
+          case DECIMAL: {
+            final BigInteger value2 = ODecimalSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset).toBigInteger();
+            return value1.compareTo(value2);
+          }
+          case BIGINTEGER: {
+            final BigInteger value2 = OBigIntegerSerializer.INSTANCE.deserialize(fieldValue2.bytes, fieldValue2.offset);
+            return value1.compareTo(value2);
+          }
+          case BYTE: {
+            final byte[] value2 = new byte[]{ORecordSerializerBinaryV0.readByte(fieldValue2)};
+            return value1.compareTo(new BigInteger(value2));
+          }
+        }
+        break;
+        }
       }
     } finally {
       fieldValue1.offset = offset1;

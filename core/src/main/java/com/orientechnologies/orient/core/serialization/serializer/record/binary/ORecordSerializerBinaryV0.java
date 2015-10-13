@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.serialization.types.OBigIntegerSerializer;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
@@ -59,6 +60,7 @@ import com.orientechnologies.orient.core.util.ODateHelper;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -476,6 +478,10 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       value = ODecimalSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
       bytes.skip(ODecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
       break;
+    case BIGINTEGER:
+      value = OBigIntegerSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+      bytes.skip(OBigIntegerSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
+      break;
     case LINKBAG:
       ORidBag bag = new ORidBag();
       bag.fromStream(bytes);
@@ -688,6 +694,11 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       BigDecimal decimalValue = (BigDecimal) value;
       pointer = bytes.alloc(ODecimalSerializer.INSTANCE.getObjectSize(decimalValue));
       ODecimalSerializer.INSTANCE.serialize(decimalValue, bytes.bytes, pointer);
+      break;
+    case BIGINTEGER:
+      BigInteger bigIntValue = (BigInteger) value;
+      pointer = bytes.alloc(OBigIntegerSerializer.INSTANCE.getObjectSize(bigIntValue));
+      OBigIntegerSerializer.INSTANCE.serialize(bigIntValue, bytes.bytes, pointer);
       break;
     case BINARY:
       pointer = writeBinary(bytes, (byte[]) (value));

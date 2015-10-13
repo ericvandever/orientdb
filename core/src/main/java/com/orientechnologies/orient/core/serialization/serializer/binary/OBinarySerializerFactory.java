@@ -78,6 +78,7 @@ public class OBinarySerializerFactory {
     factory.registerSerializer(OStreamSerializerRID.INSTANCE, null);
     factory.registerSerializer(OBinaryTypeSerializer.INSTANCE, OType.BINARY);
     factory.registerSerializer(ODecimalSerializer.INSTANCE, OType.DECIMAL);
+    factory.registerSerializer(OBigIntegerSerializer.INSTANCE, OType.BIGINTEGER);
 
     factory.registerSerializer(OStreamSerializerListRID.INSTANCE, null);
     factory.registerSerializer(OStreamSerializerOldRIDContainer.INSTANCE, null);

@@ -118,7 +118,7 @@ public class TestOTypeDetection {
 
     assertEquals(OType.DECIMAL, OType.getTypeByClass(BigDecimal.class));
 
-    assertEquals(OType.INTEGER, OType.getTypeByClass(BigInteger.class));
+    assertEquals(OType.BIGINTEGER, OType.getTypeByClass(BigInteger.class));
 
     assertEquals(OType.LINK, OType.getTypeByClass(OIdentifiable.class));
 
@@ -199,7 +199,7 @@ public class TestOTypeDetection {
 
     assertEquals(OType.DECIMAL, OType.getTypeByValue(new BigDecimal(10)));
 
-    assertEquals(OType.INTEGER, OType.getTypeByValue(new BigInteger("20")));
+    assertEquals(OType.BIGINTEGER, OType.getTypeByValue(new BigInteger("20")));
 
     assertEquals(OType.LINK, OType.getTypeByValue(new ODocument()));
 

@@ -45,6 +45,22 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
   }
 
   @Test
+  public void testBigInteger() {
+    BigInteger value = new BigInteger("1178932789472389723987298");
+    ODocument newDoc = new ODocument();
+    newDoc.field("big_integer", value);
+    database.save(newDoc);
+
+    final ORID rid = newDoc.getIdentity();
+
+    database.close();
+    database = new ODatabaseDocumentTx(url).open("admin", "admin");
+
+    ODocument loadedDoc = database.load(rid);
+    Assert.assertEquals(loadedDoc.field("big_integer"), value);
+  }
+
+  @Test
   public void testBigDecimal() {
     ODocument newDoc = new ODocument();
     newDoc.field("integer", new BigInteger("10"));

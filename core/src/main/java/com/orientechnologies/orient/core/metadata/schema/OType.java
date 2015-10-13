@@ -107,13 +107,15 @@ public enum OType {
 
   LINKBAG("LinkBag", 22, ORidBag.class, new Class<?>[] { ORidBag.class }),
 
-  ANY("Any", 23, null, new Class<?>[] {});
+  ANY("Any", 23, null, new Class<?>[] {}),
+
+  BIGINTEGER("BigInteger", 24, BigInteger.class, new Class<?>[] { BigInteger.class, Number.class });
 
   // Don't change the order, the type discover get broken if you change the order.
   protected static final OType[]              TYPES          = new OType[] { EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP, LINK, CUSTOM,
       EMBEDDED, STRING, DATETIME                            };
 
-  protected static final OType[]              TYPES_BY_ID    = new OType[24];
+  protected static final OType[]              TYPES_BY_ID    = new OType[25];
   // Values previosly stored in javaTypes
   protected static final Map<Class<?>, OType> TYPES_BY_CLASS = new HashMap<Class<?>, OType>();
 
@@ -126,7 +128,7 @@ public enum OType {
     TYPES_BY_CLASS.put(Boolean.TYPE, BOOLEAN);
     TYPES_BY_CLASS.put(Integer.TYPE, INTEGER);
     TYPES_BY_CLASS.put(Integer.class, INTEGER);
-    TYPES_BY_CLASS.put(BigInteger.class, INTEGER);
+    TYPES_BY_CLASS.put(BigInteger.class, BIGINTEGER);
     TYPES_BY_CLASS.put(Short.class, SHORT);
     TYPES_BY_CLASS.put(Short.TYPE, SHORT);
     TYPES_BY_CLASS.put(Long.class, LONG);
@@ -157,6 +159,7 @@ public enum OType {
     SHORT.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE }));
     INTEGER.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE, SHORT }));
     LONG.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE, SHORT, INTEGER }));
+    BIGINTEGER.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE, SHORT, INTEGER, LONG }));
     FLOAT.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE, SHORT, INTEGER }));
     DOUBLE.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE, SHORT, INTEGER, LONG, FLOAT }));
     DECIMAL.castable.addAll(Arrays.asList(new OType[] { BOOLEAN, BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE }));
@@ -368,6 +371,13 @@ public enum OType {
         else
           return ((Number) iValue).longValue();
 
+      } else if (iTargetClass.equals(BigInteger.class)) {
+        if (iValue instanceof BigInteger)
+          return iValue;
+        else if (iValue instanceof String)
+          return new BigInteger((String) iValue);
+        else if (iValue instanceof Number)
+          return new BigInteger(iValue.toString());
       } else if (iTargetClass.equals(Float.TYPE) || iTargetClass.equals(Float.class)) {
         if (iValue instanceof Float)
           return iValue;
@@ -469,6 +479,8 @@ public enum OType {
         return new Double(a.intValue() + b.doubleValue());
       else if (b instanceof BigDecimal)
         return new BigDecimal(a.intValue()).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        return BigInteger.valueOf(a.intValue()).add((BigInteger) b);
 
     } else if (a instanceof Long) {
       if (b instanceof Integer)
@@ -483,6 +495,8 @@ public enum OType {
         return new Double(a.longValue() + b.doubleValue());
       else if (b instanceof BigDecimal)
         return new BigDecimal(a.longValue()).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        return BigInteger.valueOf(a.longValue()).add((BigInteger) b);
 
     } else if (a instanceof Short) {
       if (b instanceof Integer) {
@@ -505,6 +519,8 @@ public enum OType {
         return new Double(a.shortValue() + b.doubleValue());
       else if (b instanceof BigDecimal)
         return new BigDecimal(a.shortValue()).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        return BigInteger.valueOf(a.shortValue()).add((BigInteger) b);
 
     } else if (a instanceof Float) {
       if (b instanceof Integer)
@@ -519,6 +535,9 @@ public enum OType {
         return new Double(a.floatValue() + b.doubleValue());
       else if (b instanceof BigDecimal)
         return new BigDecimal(a.floatValue()).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        // SPECIAL CASE: UPGRADE TO BIGDECIMAL
+        return new BigDecimal(a.floatValue()).add(new BigDecimal((BigInteger)b));
 
     } else if (a instanceof Double) {
       if (b instanceof Integer)
@@ -533,6 +552,9 @@ public enum OType {
         return new Double(a.doubleValue() + b.doubleValue());
       else if (b instanceof BigDecimal)
         return new BigDecimal(a.doubleValue()).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        // SPECIAL CASE: UPGRADE TO BIGDECIMAL
+        return new BigDecimal(a.doubleValue()).add(new BigDecimal((BigInteger)b));
 
     } else if (a instanceof BigDecimal) {
       if (b instanceof Integer)
@@ -547,7 +569,24 @@ public enum OType {
         return ((BigDecimal) a).add(new BigDecimal(b.doubleValue()));
       else if (b instanceof BigDecimal)
         return ((BigDecimal) a).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        return ((BigDecimal) a).add(new BigDecimal((BigInteger)b));
 
+    } else if (a instanceof BigInteger) {
+      if (b instanceof Integer)
+        return ((BigInteger) a).add(BigInteger.valueOf(b.intValue()));
+      else if (b instanceof Long)
+        return ((BigInteger) a).add(BigInteger.valueOf(b.longValue()));
+      else if (b instanceof Short)
+        return ((BigInteger) a).add(BigInteger.valueOf(b.shortValue()));
+      else if (b instanceof Float)
+        return new BigDecimal((BigInteger) a).add(new BigDecimal(b.floatValue()));
+      else if (b instanceof Double)
+        return new BigDecimal((BigInteger) a).add(new BigDecimal(b.doubleValue()));
+      else if (b instanceof BigDecimal)
+        return new BigDecimal((BigInteger) a).add((BigDecimal) b);
+      else if (b instanceof BigInteger)
+        return ((BigInteger) a).add((BigInteger) b);
     }
 
     throw new IllegalArgumentException("Cannot increment value '" + a + "' (" + a.getClass() + ") with '" + b + "' ("
@@ -562,6 +601,8 @@ public enum OType {
         context = context.intValue();
       else if (max instanceof Long)
         context = context.longValue();
+      else if (max instanceof BigInteger)
+        context = BigInteger.valueOf(context.intValue());
       else if (max instanceof Float)
         context = context.floatValue();
       else if (max instanceof Double)
@@ -573,6 +614,8 @@ public enum OType {
       // INTEGER
       if (max instanceof Long)
         context = context.longValue();
+      else if (max instanceof BigInteger)
+        context = BigInteger.valueOf(context.intValue());
       else if (max instanceof Float)
         context = context.floatValue();
       else if (max instanceof Double)
@@ -584,7 +627,9 @@ public enum OType {
 
     } else if (context instanceof Long) {
       // LONG
-      if (max instanceof Float)
+      if (max instanceof BigInteger)
+        context = BigInteger.valueOf(context.longValue());
+      else if (max instanceof Float)
         context = context.floatValue();
       else if (max instanceof Double)
         context = context.doubleValue();
@@ -593,12 +638,25 @@ public enum OType {
       else if (max instanceof Integer || max instanceof Short)
         max = max.longValue();
 
+    } else if (context instanceof BigInteger) {
+      // BIGINTEGER
+      if (max instanceof Short || max instanceof Integer || max instanceof Long)
+        max = BigInteger.valueOf(max.longValue());
+      else if (max instanceof BigDecimal)
+        context = new BigDecimal((BigInteger)context);
+      else if (max instanceof Float)
+        context = context.floatValue();
+      else if (max instanceof Double)
+        context = context.doubleValue();
+
     } else if (context instanceof Float) {
       // FLOAT
       if (max instanceof Double)
         context = context.doubleValue();
       else if (max instanceof BigDecimal)
         context = new BigDecimal(context.floatValue());
+      else if (max instanceof BigInteger)
+        max = max.floatValue();
       else if (max instanceof Short || max instanceof Integer || max instanceof Long)
         max = max.floatValue();
 
@@ -606,11 +664,13 @@ public enum OType {
       // DOUBLE
       if (max instanceof BigDecimal)
         context = new BigDecimal(context.doubleValue());
+      else if (max instanceof BigInteger)
+        max = max.doubleValue();
       else if (max instanceof Short || max instanceof Integer || max instanceof Long || max instanceof Float)
         max = max.doubleValue();
 
     } else if (context instanceof BigDecimal) {
-      // DOUBLE
+      // DECIMAL
       if (max instanceof Integer)
         max = new BigDecimal((Integer) max);
       else if (max instanceof Float)
@@ -619,6 +679,8 @@ public enum OType {
         max = new BigDecimal((Double) max);
       else if (max instanceof Short)
         max = new BigDecimal((Short) max);
+      else if (max instanceof BigInteger)
+        max = new BigDecimal((BigInteger) max);
     }
 
     return new Number[] { context, max };

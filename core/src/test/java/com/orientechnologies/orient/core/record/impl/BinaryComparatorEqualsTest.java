@@ -176,6 +176,7 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
       case BINARY:
       case LINK:
       case DECIMAL:
+      case BIGINTEGER:
         Assert.assertTrue(comparator.isBinaryComparable(t));
         break;
 
